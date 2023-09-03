@@ -1,6 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
+from rest_framework import status
 from .models import Company, Employee, Device, DeviceLog
 
 class APITestCase(TestCase):
@@ -23,12 +24,17 @@ class APITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_create_company(self):
-        response = self.client.post('/api/companies/', {'name': 'New Company'})
-        self.assertEqual(response.status_code, 201)
+        company_data = {'name': 'New Company'}
+
+        response = self.client.post('/api/companies/', company_data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        created_company = Company.objects.get(name=company_data['name'])
+
+        self.assertEqual(created_company.name, company_data['name'])
 
     def test_employee_list(self):
         response = self.client.get('/api/employees/')
         self.assertEqual(response.status_code, 200)
-
-    # Add more test methods for other views and functionality
 
